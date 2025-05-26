@@ -56,3 +56,8 @@ class TelaVoto:
 
     def mostrar_erro(self, mensagem):
         print(f"\nERRO: {mensagem}")
+    
+    def mostrar_filmes_disponiveis(self, filmes):
+        print("\nFilmes disponíveis para votação:")
+        for filme in filmes:
+            print(f"- {filme.nome} ({filme.ano_lancamento}) - Direção: {filme.diretor}")
