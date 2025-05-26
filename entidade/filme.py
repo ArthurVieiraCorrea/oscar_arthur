@@ -1,13 +1,13 @@
-from categoria import Categoria
-from membro_academia import MembroAcademia
+from entidade.categoria import Categoria
+from entidade.membro_academia import MembroAcademia
 
 class Filme:
     def __init__(self, nome: str, ano: str, nacionalidade: str, diretor: str):
-        self.nome = nome
-        self.ano = ano
-        self.nacionalidade = nacionalidade
-        self.diretor = diretor
-        self.indicacoes = [] # lista de tuplas (categoria, membro)
+        self.__nome = nome
+        self.__ano = ano
+        self.__nacionalidade = nacionalidade
+        self.__diretor = diretor
+        self.__indicacoes = [] # lista de tuplas (categoria, membro)
 
     @property
     def nome (self):

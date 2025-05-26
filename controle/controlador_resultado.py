@@ -28,7 +28,7 @@ class ControladorResultado:
         self.__tela_resultado.mostrar_vencedor_categoria(resultado)
 
     def top3_filmes_mais_premiados(self):
-        todos_votos = [v.votado for v in self.__controlador_voto.votos]
+        todos_votos = [v.votado for v in self.__controlador_voto.listar_votos()]
         
         if not todos_votos:
             self.__tela_resultado.mostrar_erro("Nenhum voto registrado ainda.")

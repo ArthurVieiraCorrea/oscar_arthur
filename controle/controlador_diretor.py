@@ -1,7 +1,7 @@
 from entidade.diretor import Diretor
 from limite.tela_diretor import TelaDiretor
 
-class ControleDiretor:
+class ControladorDiretor:
     def __init__(self, tela_diretor):
         self.__lista_diretores = []
         self.__tela_diretor = tela_diretor  

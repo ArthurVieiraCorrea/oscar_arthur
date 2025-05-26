@@ -1,5 +1,5 @@
-from membro_academia import MembroAcademia
-from categoria import Categoria
+from entidade.membro_academia import MembroAcademia
+from entidade.categoria import Categoria
 
 
 class Voto:

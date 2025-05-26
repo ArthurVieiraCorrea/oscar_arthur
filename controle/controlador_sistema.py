@@ -5,6 +5,8 @@ from controle.controlador_diretor import ControladorDiretor
 from controle.controlador_ator import ControladorAtor
 from controle.controlador_voto import ControladorVoto
 from controle.controlador_resultado import ControladorResultado
+from limite.tela_ator import TelaAtor
+from limite.tela_diretor import TelaDiretor
 from limite.tela_sistema import TelaSistema
 
 class ControladorSistema:
@@ -15,8 +17,8 @@ class ControladorSistema:
         self.__controlador_filme = ControladorFilme(self, 
                                                   self.__controlador_categoria,
                                                   self.__controlador_membro_academia)
-        self.__controlador_diretor = ControladorDiretor(self)
-        self.__controlador_ator = ControladorAtor(self)
+        self.__controlador_diretor = ControladorDiretor(TelaDiretor())
+        self.__controlador_ator = ControladorAtor(TelaAtor())
         
         # Controladores dependentes (recebem outros controladores)
         self.__controlador_voto = ControladorVoto(self,
@@ -51,24 +53,26 @@ class ControladorSistema:
 
     def abre_tela(self):
         while True:
-            opcao = self.__tela_sistema.mostrar_opcoes()
-            
-            if opcao == 1:
-                self.abre_tela_ator()
-            elif opcao == 2:
-                self.abre_tela_diretor()
-            elif opcao == 3:
-                self.abre_tela_filme()
-            elif opcao == 4:
-                self.abre_tela_membro_academia()
-            elif opcao == 5:
-                self.abre_tela_voto()
-            elif opcao == 6:
-                self.abre_tela_categoria()
-            elif opcao == 7:
-                self.abre_tela_resultado()
-            elif opcao == 0:
-                self.__tela_sistema.mostrar_mensagem("Encerrando sistema...")
-                exit(0)
-            else:
-                self.__tela_sistema.mostrar_erro("Opção inválida!")
+            try:
+                opcao = self.__tela_sistema.mostrar_opcoes()
+                if opcao == 1:
+                    self.abre_tela_ator()
+                elif opcao == 2:
+                    self.abre_tela_diretor()
+                elif opcao == 3:
+                    self.abre_tela_filme()
+                elif opcao == 4:
+                    self.abre_tela_membro_academia()
+                elif opcao == 5:
+                    self.abre_tela_voto()
+                elif opcao == 6:
+                    self.abre_tela_categoria()
+                elif opcao == 7:
+                    self.abre_tela_resultado()
+                elif opcao == 0:
+                    self.__tela_sistema.mostrar_mensagem("Encerrando sistema...")
+                    exit(0)
+                    
+            except Exception as e:
+                self.__tela_sistema.mostrar_erro(f"Erro inesperado: {str(e)}")
+                continue

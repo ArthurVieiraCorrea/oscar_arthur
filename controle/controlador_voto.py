@@ -22,28 +22,28 @@ class ControladorVoto:
         if not self.__votacao_aberta:
             self.__tela_voto.mostrar_erro("A votação está encerrada!")
             return
-
         dados = self.__tela_voto.pegar_dados_voto()
-        
         votante = self.__controlador_membro.encontrar_membro_por_id(dados['votante_id'])
-        categoria = self.__controlador_categoria.pegar_categoria_por_nome(dados['categoria_nome'])
-        
         if not votante:
-            self.__tela_voto.mostrar_erro("Membro votante não encontrado!")
+            self.__tela_voto.mostrar_erro("Membro não encontrado!")
             return
+        categoria = self.__controlador_categoria.pegar_categoria_por_nome(dados['categoria_nome'])
         if not categoria:
             self.__tela_voto.mostrar_erro("Categoria não encontrada!")
             return
-            
-        voto_existente = self.encontrar_voto(votante, categoria)
-        if voto_existente:
-            self.__tela_voto.mostrar_erro(f"Este membro já votou na categoria {categoria.nome_categoria}!")
+        self.__tela_voto.mostrar_filmes_disponiveis(self.__controlador_filme.lista_filmes)
+        votado = input("Nome do filme votado: ").strip()
+        while not self.__controlador_filme.filme_existe(votado):
+            self.__tela_voto.mostrar_erro("Filme inválido! Digite novamente.")
+            votado = input("Nome do filme votado: ").strip()
+
+        if not self.__tela_voto.confirmar_voto(votante, categoria, votado):
+            self.__tela_voto.mostrar_mensagem("Voto cancelado.")
             return
-            
-        novo_voto = Voto(votante, categoria, dados['votado'])
+
+        novo_voto = Voto(votante, categoria, votado)
         self.__votos.append(novo_voto)
-        self.__tela_voto.mostrar_mensagem(
-            f"Voto registrado: {votante.nome} votou em {dados['votado']} para '{categoria.nome_categoria}'")
+        self.__tela_voto.mostrar_mensagem("Voto registrado com sucesso!")
 
     def alterar_voto(self):
         if not self.__votacao_aberta:
@@ -121,6 +121,9 @@ class ControladorVoto:
             resultados[categoria][votado] += 1
             
         return resultados
+
+    def listar_votos(self):
+        return self.__votos
 
     def abre_tela(self):
         while True:

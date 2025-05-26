@@ -1,7 +1,7 @@
 from entidade.ator import Ator
 from limite.tela_ator import TelaAtor
 
-class ControleAtor:
+class ControladorAtor:
     def __init__(self, tela_ator):
         self.__lista_atores = []
         self.__tela_ator = tela_ator  

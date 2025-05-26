@@ -1,5 +1,5 @@
 from datetime import date
-from abstractPessoa import Pessoa
+from abstract.abstract_pessoa import Pessoa
 
 class MembroAcademia(Pessoa):
 

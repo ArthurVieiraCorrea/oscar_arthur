@@ -1,26 +1,25 @@
-class TelaSistema:
-    def __init__(self):
-        pass
+def mostrar_opcoes(self):
+    print("\n=== MENU PRINCIPAL ===")
+    print("1 - Atores")
+    print("2 - Diretores")
+    print("3 - Filmes")
+    print("4 - Membros da Academia")
+    print("5 - Votação")
+    print("6 - Categorias")
+    print("7 - Resultados")
+    print("0 - Sair")
 
-    def mostrar_opcoes(self):
-        print("\n=== SISTEMA DO OSCAR ===")
-        print("1 - Atores")
-        print("2 - Diretores")
-        print("3 - Filmes")
-        print("4 - Membros da Academia")
-        print("5 - Votação")
-        print("6 - Categorias")
-        print("7 - Resultados")
-        print("0 - Sair")
-
-        while True:
-            try:
-                opcao = int(input("Escolha uma opção: "))
-                if 0 <= opcao <= 7:
-                    return opcao
-                print("Opção inválida. Tente novamente.")
-            except ValueError:
-                print("Por favor, insira um número válido.")
+    while True:
+        try:
+            opcao = input("Escolha a opção: ").strip()
+            if opcao.isdigit():  # Verifica se é número
+                opcao_int = int(opcao)
+                if 0 <= opcao_int <= 7:
+                    return opcao_int
+            print("Opção inválida. Digite um número entre 0 e 7.")
+        except KeyboardInterrupt:
+            print("\nOperação cancelada pelo usuário.")
+            return 0
 
     def mostrar_mensagem(self, mensagem: str):
         print(f"\n{mensagem}")

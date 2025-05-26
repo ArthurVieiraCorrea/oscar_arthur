@@ -100,6 +100,10 @@ class ControladorFilme:
         else:
             self.__tela_filme.mostrar_erro("Filme não encontrado!")
 
+    def filme_existe(self, nome_filme: str) -> bool:
+        return any(filme.nome.lower() == nome_filme.lower() 
+              for filme in self.__lista_filmes)
+
     def abre_tela(self):
         while True:
             opcao = self.__tela_filme.mostrar_opcoes()

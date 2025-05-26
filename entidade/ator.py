@@ -1,5 +1,6 @@
 
-from abstractPessoa import Pessoa
+from abstract.abstract_pessoa import Pessoa
+
 
 class Ator(Pessoa):
     def __init__(self, nome: str, nacionalidade: str):
