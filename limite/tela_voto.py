@@ -40,6 +40,14 @@ class TelaVoto:
             
         return dados
 
+    def confirmar_voto(self, votante, categoria, votado):
+        """
+        Pede confirmação ao utilizador antes de registar o voto.
+        """
+        print(f"\nConfirma o voto de {votante.nome} para a categoria '{categoria.nome_categoria}' no item: {votado}?")
+        resposta = input("Digite 's' para confirmar ou qualquer outra coisa para cancelar: ").lower().strip()
+        return resposta == 's'
+
     def confirmar_finalizacao(self):
         resposta = input("\nTem certeza que deseja finalizar a votação? (s/n): ").lower().strip()
         return resposta == 's'
@@ -60,4 +68,5 @@ class TelaVoto:
     def mostrar_filmes_disponiveis(self, filmes):
         print("\nFilmes disponíveis para votação:")
         for filme in filmes:
-            print(f"- {filme.nome} ({filme.ano_lancamento}) - Direção: {filme.diretor}")
+            print(f"- {filme.nome} (Ano: {filme.ano}) - Direção: {filme.diretor.nome if hasattr(filme.diretor, 'nome') else filme.diretor}")
+

@@ -12,6 +12,11 @@ class ControladorVoto:
         self.__votos = []
         self.__votacao_aberta = True
 
+    @property 
+    def votos(self):
+        """Retorna a lista de todos os votos registrados."""
+        return list(self.__votos)
+
     def encontrar_voto(self, votante: MembroAcademia, categoria: Categoria):
         for voto in self.__votos:
             if voto.votante == votante and voto.categoria_votada == categoria:
@@ -31,9 +36,11 @@ class ControladorVoto:
         if not categoria:
             self.__tela_voto.mostrar_erro("Categoria não encontrada!")
             return
-        self.__tela_voto.mostrar_filmes_disponiveis(self.__controlador_filme.lista_filmes)
+        
+        self.__tela_voto.mostrar_filmes_disponiveis(self.__controlador_sistema.controlador_filme.lista_filmes) 
+        
         votado = input("Nome do filme votado: ").strip()
-        while not self.__controlador_filme.filme_existe(votado):
+        while not self.__controlador_sistema.controlador_filme.filme_existe(votado): 
             self.__tela_voto.mostrar_erro("Filme inválido! Digite novamente.")
             votado = input("Nome do filme votado: ").strip()
 
@@ -64,7 +71,7 @@ class ControladorVoto:
             
         voto = self.encontrar_voto(votante, categoria)
         if voto:
-            voto.novo_votado = dados['votado']
+            voto.novo_votado = dados['votado'] 
             self.__tela_voto.mostrar_mensagem(
                 f"Voto atualizado: {votante.nome} agora votou em {dados['votado']} para '{categoria.nome_categoria}'")
         else:

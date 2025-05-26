@@ -1,11 +1,15 @@
+# controle/controlador_categoria.py
 from entidade.categoria import Categoria
 from limite.tela_categoria import TelaCategoria
 
 class ControladorCategoria:
     def __init__(self, controlador_sistema):
+        print("DEBUG: Iniciando ControladorCategoria.__init__")
         self.__controlador_sistema = controlador_sistema
         self.__tela_categoria = TelaCategoria()
         self.__categorias = []
+        self.__inicializar_categorias_fixas()
+        print("DEBUG: ControladorCategoria.__init__ concluído.")
 
     @property
     def categorias(self):
@@ -16,9 +20,22 @@ class ControladorCategoria:
             if categoria.nome_categoria.lower() == nome_categoria.lower():
                 return categoria
         return None
+    
+    def __inicializar_categorias_fixas(self):
+        nomes_fixos = ["Melhor Ator", "Melhor Diretor", "Melhor Filme"]
+        for nome in nomes_fixos:
+            if not self.pegar_categoria_por_nome(nome):
+                self.__categorias.append(Categoria(nome))
+        print("Categorias fixas inicializadas: Melhor Ator, Melhor Diretor, Melhor Filme.")
 
     def incluir_categoria(self):
         nome = self.__tela_categoria.pegar_nome_categoria("Adicionar")
+        nomes_fixos_lower = ["melhor ator", "melhor diretor", "melhor filme"]
+        
+        if nome.lower() in nomes_fixos_lower:
+            self.__tela_categoria.mostrar_erro(f"A categoria '{nome}' é uma categoria fixa e não pode ser adicionada manualmente.")
+            return
+
         if self.pegar_categoria_por_nome(nome) is None:
             nova_categoria = Categoria(nome)
             self.__categorias.append(nova_categoria)
@@ -28,6 +45,12 @@ class ControladorCategoria:
 
     def excluir_categoria(self):
         nome = self.__tela_categoria.pegar_nome_categoria("Remover")
+        nomes_fixos_lower = ["melhor ator", "melhor diretor", "melhor filme"]
+
+        if nome.lower() in nomes_fixos_lower:
+            self.__tela_categoria.mostrar_erro(f"A categoria '{nome}' é uma categoria fixa e não pode ser removida.")
+            return
+            
         categoria = self.pegar_categoria_por_nome(nome)
         if categoria:
             self.__categorias.remove(categoria)
@@ -36,7 +59,53 @@ class ControladorCategoria:
             self.__tela_categoria.mostrar_erro(f"Categoria '{nome}' não encontrada!")
 
     def listar_categorias(self):
-        self.__tela_categoria.mostrar_categorias(self.__categorias)
+        print("DEBUG: Entrando em ControladorCategoria.listar_categorias")
+        categorias_para_exibir = []
+        for categoria in self.__categorias:
+            nome_categoria_lower = categoria.nome_categoria.lower()
+            
+            if nome_categoria_lower == "melhor ator":
+                print("DEBUG: Tentando acessar controlador_ator para Melhor Ator.")
+                # Acessa a lista de atores através do ControladorSistema
+                try:
+                    # A linha abaixo é onde o erro provavelmente ocorre
+                    atores = self.__controlador_sistema.controlador_ator.lista_atores
+                    categorias_para_exibir.append({
+                        "nome": categoria.nome_categoria,
+                        "participantes": atores 
+                    })
+                    print(f"DEBUG: Atores obtidos: {len(atores)} atores.")
+                except AttributeError as e:
+                    print(f"ERRO DE DEBUG: AttributeError ao acessar controlador_ator: {e}")
+                    categorias_para_exibir.append({
+                        "nome": categoria.nome_categoria,
+                        "participantes": ["(Erro ao carregar dados de Ator)"]
+                    })
+            elif nome_categoria_lower == "melhor diretor":
+                print("DEBUG: Tentando acessar controlador_diretor para Melhor Diretor.")
+                try:
+                    # A linha abaixo é onde o erro provavelmente ocorre
+                    diretores = self.__controlador_sistema.controlador_diretor.lista_diretores
+                    categorias_para_exibir.append({
+                        "nome": categoria.nome_categoria,
+                        "participantes": diretores
+                    })
+                    print(f"DEBUG: Diretores obtidos: {len(diretores)} diretores.")
+                except AttributeError as e:
+                    print(f"ERRO DE DEBUG: AttributeError ao acessar controlador_diretor: {e}")
+                    categorias_para_exibir.append({
+                        "nome": categoria.nome_categoria,
+                        "participantes": ["(Erro ao carregar dados de Diretor)"]
+                    })
+            else:
+                print(f"DEBUG: Processando categoria normal: {categoria.nome_categoria}")
+                categorias_para_exibir.append({
+                    "nome": categoria.nome_categoria,
+                    "participantes": categoria.participantes
+                })
+        
+        self.__tela_categoria.mostrar_categorias(categorias_para_exibir)
+        print("DEBUG: Saindo de ControladorCategoria.listar_categorias")
 
     def abre_tela(self):
         while True:
@@ -51,3 +120,4 @@ class ControladorCategoria:
             elif opcao == 0:
                 self.__tela_categoria.mostrar_mensagem("Retornando ao menu principal...")
                 break
+

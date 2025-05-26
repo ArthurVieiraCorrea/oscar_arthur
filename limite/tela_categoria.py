@@ -25,17 +25,26 @@ class TelaCategoria:
             print("Nome não pode ser vazio!")
             nome = input("Nome da categoria: ").strip()
         return nome
-
-    def mostrar_categorias(self, categorias: list):
-        print("\n--- CATEGORIAS CADASTRADAS ---")
-        if not categorias:
-            print("Nenhuma categoria cadastrada.")
-        else:
-            for i, categoria in enumerate(categorias, 1):
-                print(f"{i}. {categoria.nome_categoria}")
-
+    
     def mostrar_mensagem(self, mensagem: str):
         print(f"\n{mensagem}")
 
     def mostrar_erro(self, mensagem: str):
         print(f"\nERRO: {mensagem}")
+
+    def mostrar_categorias(self, categorias_para_exibir: list):
+        if not categorias_para_exibir:
+            print("\nNenhuma categoria cadastrada.")
+            return
+
+        print("\n--- Listagem de Categorias ---")
+        for categoria_info in categorias_para_exibir:
+            print(f"Categoria: {categoria_info['nome']}")
+            if categoria_info['participantes']:
+                print("  Participantes:")
+                for participante in categoria_info['participantes']:
+                    nome_participante = getattr(participante, 'nome', str(participante))
+                    print(f"    - {nome_participante}")
+            else:
+                print("  Nenhum participante nesta categoria.")
+            print("-" * 30)

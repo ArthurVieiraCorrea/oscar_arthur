@@ -12,13 +12,13 @@ class TelaAtor:
         except ValueError:
             return -1
 
-    def pegar_dados_cadastro(self):
+    def pegar_dados_cadastro(self): 
         print("\n--- CADASTRAR ATOR ---")
         nome = input("Nome: ")
         nacionalidade = input("Nacionalidade: ")
         return nome, nacionalidade
 
-    def pegar_nome_ator(self, mensagem):
+    def pegar_nome_ator(self, mensagem): 
         return input(mensagem + " ")
 
     def pegar_dados_edicao(self):
@@ -33,3 +33,4 @@ class TelaAtor:
 
     def mostrar_mensagem(self, mensagem):
         print(mensagem)
+

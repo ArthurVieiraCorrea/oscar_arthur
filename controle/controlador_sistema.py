@@ -11,24 +11,39 @@ from limite.tela_sistema import TelaSistema
 
 class ControladorSistema:
     def __init__(self):
-        # Inicializa controladores principais
-        self.__controlador_categoria = ControladorCategoria(self)
+        self.__controlador_ator = ControladorAtor(TelaAtor())
+
+        self.__controlador_diretor = ControladorDiretor(TelaDiretor())
+        self.__controlador_categoria = ControladorCategoria(self) 
         self.__controlador_membro_academia = ControladorMembroAcademia(self)
         self.__controlador_filme = ControladorFilme(self, 
-                                                  self.__controlador_categoria,
-                                                  self.__controlador_membro_academia)
-        self.__controlador_diretor = ControladorDiretor(TelaDiretor())
-        self.__controlador_ator = ControladorAtor(TelaAtor())
-        
-        # Controladores dependentes (recebem outros controladores)
+                                                 self.__controlador_categoria,
+                                                 self.__controlador_membro_academia)
         self.__controlador_voto = ControladorVoto(self,
-                                                self.__controlador_membro_academia,
-                                                self.__controlador_categoria)
-        
+                                                 self.__controlador_membro_academia,
+                                                 self.__controlador_categoria)
+
         self.__controlador_resultado = ControladorResultado(self,
-                                                          self.__controlador_voto)
+                                                           self.__controlador_voto)
         
         self.__tela_sistema = TelaSistema()
+
+
+    @property
+    def controlador_ator(self):
+        return self.__controlador_ator
+
+    @property
+    def controlador_diretor(self):
+        return self.__controlador_diretor
+
+    @property
+    def controlador_categoria(self):
+        return self.__controlador_categoria
+
+    @property
+    def controlador_filme(self): 
+        return self.__controlador_filme
 
     def abre_tela_categoria(self):
         self.__controlador_categoria.abre_tela()
@@ -76,3 +91,4 @@ class ControladorSistema:
             except Exception as e:
                 self.__tela_sistema.mostrar_erro(f"Erro inesperado: {str(e)}")
                 continue
+

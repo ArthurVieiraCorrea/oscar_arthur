@@ -11,6 +11,11 @@ class ControladorFilme:
         self.__tela_filme = TelaFilme()
         self.__lista_filmes = []
 
+    @property 
+    def lista_filmes(self):
+        """Retorna a lista completa de filmes no sistema."""
+        return list(self.__lista_filmes) 
+
     def encontrar_filme_por_nome(self, nome: str):
         for filme in self.__lista_filmes:
             if filme.nome.lower() == nome.lower():
@@ -102,7 +107,7 @@ class ControladorFilme:
 
     def filme_existe(self, nome_filme: str) -> bool:
         return any(filme.nome.lower() == nome_filme.lower() 
-              for filme in self.__lista_filmes)
+             for filme in self.__lista_filmes)
 
     def abre_tela(self):
         while True:
