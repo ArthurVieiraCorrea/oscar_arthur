@@ -1,19 +1,20 @@
-from entidade.diretor import Diretor # Assumindo que você tem uma classe Diretor
+from entidade.diretor import Diretor
 from limite.tela_diretor import TelaDiretor
 
 class ControladorDiretor:
     def __init__(self, tela_diretor):
         self.__lista_diretores = []
         self.__tela_diretor = tela_diretor 
+
     @property
     def lista_diretores(self):
-        return list(self.__lista_diretores)
+        return list(self.__lista_diretores) 
     
     def criar_diretor(self, nome: str, nacionalidade: str):
         if any(diretor.nome.lower() == nome.lower() for diretor in self.__lista_diretores):
             print(f"Erro: Já existe um diretor com o nome '{nome}'.")
             return
-        novo_diretor = Diretor(nome, nacionalidade)
+        novo_diretor = Diretor(nome, nacionalidade) 
         self.__lista_diretores.append(novo_diretor)
         print(f"Diretor '{nome}' criado com sucesso.")
 
@@ -34,7 +35,7 @@ class ControladorDiretor:
         for diretor in self.__lista_diretores:
             if diretor.nome.lower() == nome.lower():
                 novo_nome, nova_nacionalidade = self.__tela_diretor.pegar_dados_edicao()
-    
+                
                 if novo_nome: 
                     diretor.nome = novo_nome 
                 if nova_nacionalidade: 
@@ -47,6 +48,7 @@ class ControladorDiretor:
     def get_dados(self, nome: str):
         for diretor in self.__lista_diretores:
             if diretor.nome.lower() == nome.lower():
+
                 return diretor.mostrar_dados()
         return f"Erro: Diretor '{nome}' não encontrado."
     

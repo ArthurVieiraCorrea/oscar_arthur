@@ -1,4 +1,3 @@
-# controle/controlador_categoria.py
 from entidade.categoria import Categoria
 from limite.tela_categoria import TelaCategoria
 
@@ -59,53 +58,49 @@ class ControladorCategoria:
             self.__tela_categoria.mostrar_erro(f"Categoria '{nome}' não encontrada!")
 
     def listar_categorias(self):
-        print("DEBUG: Entrando em ControladorCategoria.listar_categorias")
         categorias_para_exibir = []
         for categoria in self.__categorias:
             nome_categoria_lower = categoria.nome_categoria.lower()
             
-            if nome_categoria_lower == "melhor ator":
-                print("DEBUG: Tentando acessar controlador_ator para Melhor Ator.")
-                # Acessa a lista de atores através do ControladorSistema
+            if nome_categoria_lower == "melhor ator":        
                 try:
-                    # A linha abaixo é onde o erro provavelmente ocorre
                     atores = self.__controlador_sistema.controlador_ator.lista_atores
                     categorias_para_exibir.append({
                         "nome": categoria.nome_categoria,
                         "participantes": atores 
                     })
-                    print(f"DEBUG: Atores obtidos: {len(atores)} atores.")
+                    
                 except AttributeError as e:
-                    print(f"ERRO DE DEBUG: AttributeError ao acessar controlador_ator: {e}")
+                    
                     categorias_para_exibir.append({
                         "nome": categoria.nome_categoria,
                         "participantes": ["(Erro ao carregar dados de Ator)"]
                     })
             elif nome_categoria_lower == "melhor diretor":
-                print("DEBUG: Tentando acessar controlador_diretor para Melhor Diretor.")
+                
                 try:
-                    # A linha abaixo é onde o erro provavelmente ocorre
+                    
                     diretores = self.__controlador_sistema.controlador_diretor.lista_diretores
                     categorias_para_exibir.append({
                         "nome": categoria.nome_categoria,
                         "participantes": diretores
                     })
-                    print(f"DEBUG: Diretores obtidos: {len(diretores)} diretores.")
+                    
                 except AttributeError as e:
-                    print(f"ERRO DE DEBUG: AttributeError ao acessar controlador_diretor: {e}")
+                    
                     categorias_para_exibir.append({
                         "nome": categoria.nome_categoria,
                         "participantes": ["(Erro ao carregar dados de Diretor)"]
                     })
             else:
-                print(f"DEBUG: Processando categoria normal: {categoria.nome_categoria}")
+                
                 categorias_para_exibir.append({
                     "nome": categoria.nome_categoria,
                     "participantes": categoria.participantes
                 })
         
         self.__tela_categoria.mostrar_categorias(categorias_para_exibir)
-        print("DEBUG: Saindo de ControladorCategoria.listar_categorias")
+        
 
     def abre_tela(self):
         while True:

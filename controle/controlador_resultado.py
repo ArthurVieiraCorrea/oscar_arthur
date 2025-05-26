@@ -11,8 +11,7 @@ class ControladorResultado:
 
     def vencedor_categoria(self):
         nome_categoria = self.__tela_resultado.pegar_categoria()
-        
-        # Busca a categoria nos votos existentes
+
         categorias_votadas = {v.categoria_votada for v in self.__controlador_voto.votos}
         categoria = next((c for c in categorias_votadas if c.nome_categoria.lower() == nome_categoria.lower()), None)
         
@@ -54,7 +53,7 @@ class ControladorResultado:
             return
             
         vencedor = max(votos_nacionalidade.items(), key=lambda x: x[1])
-        resultado = (f"Filme mais votado por membros da nacionalidade '{nacionalidade}':\n"
+        resultado = (f"concorrente mais votado por membros da nacionalidade '{nacionalidade}':\n"
                     f"{vencedor[0]} com {vencedor[1]} voto(s)")
         self.__tela_resultado.mostrar_vencedor_nacionalidade(resultado)
 

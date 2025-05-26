@@ -5,6 +5,7 @@ class ControladorAtor:
     def __init__(self, tela_ator):
         self.__lista_atores = []
         self.__tela_ator = tela_ator 
+
     @property
     def lista_atores(self):
         return list(self.__lista_atores)
@@ -50,6 +51,10 @@ class ControladorAtor:
                 return ator.mostrar_dados()
         return f"Erro: Ator '{nome}' não encontrado."
     
+    def ator_existe(self, nome_ator: str) -> bool:
+        """Verifica se um ator com o nome especificado existe."""
+        return any(ator.nome.lower() == nome_ator.lower() for ator in self.__lista_atores)
+
     def abre_tela(self):
         while True:
             opcao = self.__tela_ator.opcoes()

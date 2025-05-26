@@ -1,7 +1,6 @@
 from entidade.membro_academia import MembroAcademia
 from entidade.categoria import Categoria
 
-
 class Voto:
     def __init__(self, votante: MembroAcademia, categoria_votada: Categoria, votado: str):
         if not isinstance(votante, MembroAcademia):

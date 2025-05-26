@@ -33,17 +33,12 @@ class TelaVoto:
             print("Categoria não pode ser vazia!")
             dados['categoria_nome'] = input("Nome da categoria: ").strip()
             
-        dados['votado'] = input("Nome do votado: ").strip()
-        while not dados['votado']:
-            print("Nome do votado não pode ser vazio!")
-            dados['votado'] = input("Nome do votado: ").strip()
-            
         return dados
 
+    def pegar_nome_votado(self, tipo_item: str):
+        return input(f"Nome do {tipo_item} votado: ").strip()
+
     def confirmar_voto(self, votante, categoria, votado):
-        """
-        Pede confirmação ao utilizador antes de registar o voto.
-        """
         print(f"\nConfirma o voto de {votante.nome} para a categoria '{categoria.nome_categoria}' no item: {votado}?")
         resposta = input("Digite 's' para confirmar ou qualquer outra coisa para cancelar: ").lower().strip()
         return resposta == 's'
@@ -65,8 +60,33 @@ class TelaVoto:
     def mostrar_erro(self, mensagem):
         print(f"\nERRO: {mensagem}")
     
-    def mostrar_filmes_disponiveis(self, filmes):
-        print("\nFilmes disponíveis para votação:")
-        for filme in filmes:
-            print(f"- {filme.nome} (Ano: {filme.ano}) - Direção: {filme.diretor.nome if hasattr(filme.diretor, 'nome') else filme.diretor}")
+    def mostrar_filmes_disponiveis(self, filmes: list):
+        if not filmes:
+            print("\nNenhum filme disponível para votação.")
+            return
 
+        print("\n--- Filmes Disponíveis ---")
+        for filme in filmes:
+            diretor_nome = filme.diretor.nome if hasattr(filme.diretor, 'nome') else str(filme.diretor)
+            print(f"- {filme.nome} (Ano: {filme.ano}) - Diretor: {diretor_nome}")
+        print("-" * 30)
+
+    def mostrar_atores_disponiveis(self, atores: list):
+        if not atores:
+            print("\nNenhum ator disponível para votação.")
+            return
+
+        print("\n--- Atores Disponíveis ---")
+        for ator in atores:
+            print(f"- {ator.nome} (Nacionalidade: {ator.nacionalidade})")
+        print("-" * 30)
+
+    def mostrar_diretores_disponiveis(self, diretores: list):
+        if not diretores:
+            print("\nNenhum diretor disponível para votação.")
+            return
+
+        print("\n--- Diretores Disponíveis ---")
+        for diretor in diretores:
+            print(f"- {diretor.nome} (Nacionalidade: {diretor.nacionalidade})")
+        print("-" * 30)

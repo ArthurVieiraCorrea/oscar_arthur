@@ -12,10 +12,10 @@ class ControladorVoto:
         self.__votos = []
         self.__votacao_aberta = True
 
-    @property 
+    @property
     def votos(self):
         """Retorna a lista de todos os votos registrados."""
-        return list(self.__votos)
+        return list(self.__votos) 
 
     def encontrar_voto(self, votante: MembroAcademia, categoria: Categoria):
         for voto in self.__votos:
@@ -27,22 +27,50 @@ class ControladorVoto:
         if not self.__votacao_aberta:
             self.__tela_voto.mostrar_erro("A votação está encerrada!")
             return
-        dados = self.__tela_voto.pegar_dados_voto()
+        
+        dados = self.__tela_voto.pegar_dados_voto() 
+        
         votante = self.__controlador_membro.encontrar_membro_por_id(dados['votante_id'])
         if not votante:
             self.__tela_voto.mostrar_erro("Membro não encontrado!")
             return
+        
         categoria = self.__controlador_categoria.pegar_categoria_por_nome(dados['categoria_nome'])
         if not categoria:
             self.__tela_voto.mostrar_erro("Categoria não encontrada!")
             return
         
-        self.__tela_voto.mostrar_filmes_disponiveis(self.__controlador_sistema.controlador_filme.lista_filmes) 
+        votado = None 
         
-        votado = input("Nome do filme votado: ").strip()
-        while not self.__controlador_sistema.controlador_filme.filme_existe(votado): 
-            self.__tela_voto.mostrar_erro("Filme inválido! Digite novamente.")
-            votado = input("Nome do filme votado: ").strip()
+        nome_categoria_lower = categoria.nome_categoria.lower()
+
+        if nome_categoria_lower == "melhor ator":
+            atores_disponiveis = self.__controlador_sistema.controlador_ator.lista_atores
+            self.__tela_voto.mostrar_atores_disponiveis(atores_disponiveis)
+            votado = self.__tela_voto.pegar_nome_votado("ator")
+            while not self.__controlador_sistema.controlador_ator.ator_existe(votado):
+                self.__tela_voto.mostrar_erro("Ator inválido! Digite novamente.")
+                votado = self.__tela_voto.pegar_nome_votado("ator")
+        
+        elif nome_categoria_lower == "melhor diretor":
+            diretores_disponiveis = self.__controlador_sistema.controlador_diretor.lista_diretores
+            self.__tela_voto.mostrar_diretores_disponiveis(diretores_disponiveis)
+            votado = self.__tela_voto.pegar_nome_votado("diretor")
+            while not self.__controlador_sistema.controlador_diretor.diretor_existe(votado):
+                self.__tela_voto.mostrar_erro("Diretor inválido! Digite novamente.")
+                votado = self.__tela_voto.pegar_nome_votado("diretor")
+        
+        else:
+            filmes_disponiveis = self.__controlador_sistema.controlador_filme.lista_filmes
+            self.__tela_voto.mostrar_filmes_disponiveis(filmes_disponiveis)
+            votado = self.__tela_voto.pegar_nome_votado("filme")
+            while not self.__controlador_sistema.controlador_filme.filme_existe(votado):
+                self.__tela_voto.mostrar_erro("Filme inválido! Digite novamente.")
+                votado = self.__tela_voto.pegar_nome_votado("filme")
+
+        if not votado:
+            self.__tela_voto.mostrar_erro("Não foi possível obter o item votado.")
+            return
 
         if not self.__tela_voto.confirmar_voto(votante, categoria, votado):
             self.__tela_voto.mostrar_mensagem("Voto cancelado.")

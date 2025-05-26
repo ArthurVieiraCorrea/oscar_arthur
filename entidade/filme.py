@@ -7,7 +7,7 @@ class Filme:
         self.__ano = ano
         self.__nacionalidade = nacionalidade
         self.__diretor = diretor
-        self.__indicacoes = [] # lista de tuplas (categoria, membro)
+        self.__indicacoes = []
 
     @property
     def nome (self):
@@ -60,7 +60,6 @@ class Filme:
             self.__indicacoes = nova_lista
         else:
             raise ValueError("A nova lista de indicações deve ser uma lista de tuplas.")
-
 
     def mostrar_dados (self):
         return f"Filme: {self.nome} - Ano: {self.ano} - Nacionalidade: {self.nacionalidade} - Diretor: {self.diretor} - indicações {self.indicacoes} "
