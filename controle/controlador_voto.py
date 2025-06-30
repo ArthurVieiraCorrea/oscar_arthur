@@ -3,6 +3,9 @@ from entidade.membro_academia import MembroAcademia
 from entidade.categoria import Categoria
 from limite.tela_voto import TelaVoto
 import PySimpleGUI as sg
+from DAOs.voto_dao import VotoDAO
+from DAOs.membro_academia_dao import MembroAcademiaDAO
+from DAOs.categoria_dao import CategoriaDAO
 
 class ControladorVoto:
     def __init__(self, controlador_sistema, controlador_membro, controlador_categoria):
@@ -10,18 +13,16 @@ class ControladorVoto:
         self.__controlador_membro = controlador_membro
         self.__controlador_categoria = controlador_categoria
         self.__tela_voto = TelaVoto()
-        self.__votos = []
+        self.__voto_dao = VotoDAO()
         self.__votacao_aberta = True
 
     @property
     def votos(self):
-        return list(self.__votos)
+        return list(self.__voto_dao.get_all())
 
     def encontrar_voto(self, votante: MembroAcademia, categoria: Categoria):
-        for voto in self.__votos:
-            if voto.votante == votante and voto.categoria_votada == categoria:
-                return voto
-        return None
+        key = (votante.get_id, categoria.nome_categoria.lower())
+        return self.__voto_dao.get(key)
 
     def registrar_voto(self, values):
         if not self.__votacao_aberta:
@@ -29,9 +30,9 @@ class ControladorVoto:
             return
 
         votante_id = values['votante_id'].strip()
-        categoria_nome = values['categoria_nome'].strip()
+        categoria_nome_input = values['categoria_nome'].strip()
 
-        if not all([votante_id, categoria_nome]):
+        if not all([votante_id, categoria_nome_input]):
             self.__tela_voto.mostrar_erro("ID do Membro Votante e Nome da Categoria são obrigatórios!")
             return
 
@@ -40,12 +41,11 @@ class ControladorVoto:
             self.__tela_voto.mostrar_erro("Membro não encontrado!")
             return
 
-        categoria = self.__controlador_categoria.pegar_categoria_por_nome(categoria_nome)
+        categoria = self.__controlador_categoria.pegar_categoria_por_nome(categoria_nome_input)
         if not categoria:
             self.__tela_voto.mostrar_erro("Categoria não encontrada!")
             return
 
-        # Check if a vote already exists for this member and category
         if self.encontrar_voto(votante, categoria):
             self.__tela_voto.mostrar_erro(f"O membro '{votante.nome}' já votou na categoria '{categoria.nome_categoria}'. Use 'Alterar Voto' para modificar.")
             return
@@ -86,11 +86,11 @@ class ControladorVoto:
                 self.__tela_voto.mostrar_erro("Filme inválido! Verifique o nome.")
                 return
         else:
-            # For custom categories, we assume the user will know what to type
-            votado = self.__tela_voto.pegar_nome_votado_popup(f"item para a categoria '{categoria_nome}'")
+            votado = values['votado_nome'].strip()
             if not votado:
                 self.__tela_voto.show_message("Aviso", "Voto cancelado. Nome do item não fornecido.")
                 return
+
 
         if not votado:
             self.__tela_voto.mostrar_erro("Não foi possível obter o item votado. Verifique a categoria e o nome.")
@@ -101,7 +101,7 @@ class ControladorVoto:
             return
 
         novo_voto = Voto(votante, categoria, votado)
-        self.__votos.append(novo_voto)
+        self.__voto_dao.add((votante.get_id, categoria.nome_categoria.lower()), novo_voto)
         self.__tela_voto.show_message("Sucesso", "Voto registrado com sucesso!")
 
 
@@ -111,14 +111,14 @@ class ControladorVoto:
             return
 
         votante_id = values['votante_id'].strip()
-        categoria_nome = values['categoria_nome'].strip()
+        categoria_nome_input = values['categoria_nome'].strip()
 
-        if not all([votante_id, categoria_nome]):
+        if not all([votante_id, categoria_nome_input]):
             self.__tela_voto.mostrar_erro("ID do votante e nome da categoria são obrigatórios para alterar voto!")
             return
 
         votante = self.__controlador_membro.encontrar_membro_por_id(votante_id)
-        categoria = self.__controlador_categoria.pegar_categoria_por_nome(categoria_nome)
+        categoria = self.__controlador_categoria.pegar_categoria_por_nome(categoria_nome_input)
 
         if not votante:
             self.__tela_voto.mostrar_erro("Membro votante não encontrado!")
@@ -168,7 +168,7 @@ class ControladorVoto:
                 self.__tela_voto.mostrar_erro("Filme inválido! Verifique o nome.")
                 return
         else:
-            votado = self.__tela_voto.pegar_nome_votado_popup("item")
+            votado = values['votado_nome'].strip()
             if not votado:
                 self.__tela_voto.show_message("Aviso", "Alteração de voto cancelada. Nome do item não fornecido.")
                 return
@@ -182,6 +182,7 @@ class ControladorVoto:
             return
 
         voto.votado = votado
+        self.__voto_dao.update((votante.get_id, categoria.nome_categoria.lower()), voto)
         self.__tela_voto.show_message("Sucesso", f"Voto atualizado: {votante.nome} agora votou em {votado} para '{categoria.nome_categoria}'")
 
 
@@ -191,14 +192,14 @@ class ControladorVoto:
             return
 
         votante_id = values['votante_id'].strip()
-        categoria_nome = values['categoria_nome'].strip()
+        categoria_nome_input = values['categoria_nome'].strip()
 
-        if not all([votante_id, categoria_nome]):
+        if not all([votante_id, categoria_nome_input]):
             self.__tela_voto.mostrar_erro("ID do votante e nome da categoria são obrigatórios para remover voto!")
             return
 
         votante = self.__controlador_membro.encontrar_membro_por_id(votante_id)
-        categoria = self.__controlador_categoria.pegar_categoria_por_nome(categoria_nome)
+        categoria = self.__controlador_categoria.pegar_categoria_por_nome(categoria_nome_input)
 
         if not votante:
             self.__tela_voto.mostrar_erro("Membro votante não encontrado!")
@@ -210,7 +211,7 @@ class ControladorVoto:
         voto = self.encontrar_voto(votante, categoria)
         if voto:
             if sg.popup_yes_no(f"Deseja realmente remover o voto de {votante.nome} para a categoria '{categoria.nome_categoria}'?") == 'Yes':
-                self.__votos.remove(voto)
+                self.__voto_dao.remove((votante.get_id, categoria.nome_categoria.lower()))
                 self.__tela_voto.show_message("Sucesso", f"Voto de {votante.nome} para categoria '{categoria.nome_categoria}' foi removido.")
             else:
                 self.__tela_voto.show_message("Remoção de Voto", "Remoção de voto cancelada.")
@@ -230,22 +231,23 @@ class ControladorVoto:
 
     def __calcular_resultados(self):
         resultados = {}
-        for voto in self.__votos:
-            categoria = voto.categoria_votada.nome_categoria
+        for voto in self.__voto_dao.get_all():
+            categoria_key = voto.categoria_votada.nome_categoria.title()
+
             votado = voto.votado
 
-            if categoria not in resultados:
-                resultados[categoria] = {}
+            if categoria_key not in resultados:
+                resultados[categoria_key] = {}
 
-            if votado not in resultados[categoria]:
-                resultados[categoria][votado] = 0
+            if votado not in resultados[categoria_key]:
+                resultados[categoria_key][votado] = 0
 
-            resultados[categoria][votado] += 1
+            resultados[categoria_key][votado] += 1
 
         return resultados
 
     def listar_votos(self):
-        self.__tela_voto.mostrar_votos_registrados(self.__votos)
+        self.__tela_voto.mostrar_votos_registrados(self.__voto_dao.get_all())
 
     def abre_tela(self):
         while True:

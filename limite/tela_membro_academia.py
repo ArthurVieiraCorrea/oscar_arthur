@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-
+from datetime import date, datetime 
 class TelaMembroAcademia:
     def __init__(self):
         self.__window = None
@@ -7,7 +7,8 @@ class TelaMembroAcademia:
     def open(self):
         if self.__window is None:
             self.init_components()
-        return self.__window.read()
+        event, values = self.__window.read()
+        return event, values
 
     def close(self):
         if self.__window:
@@ -46,5 +47,17 @@ class TelaMembroAcademia:
             return
         texto = ""
         for m in membros:
-            texto += f"ID: {m.get_id} | Nome: {m.nome} | Nacionalidade: {m.nacionalidade} | Nasc.: {m.data_nascimento.strftime('%d/%m/%Y')}\n"
+            data_nasc_str = ""
+            if isinstance(m.data_nascimento, date):
+                data_nasc_str = m.data_nascimento.strftime('%d/%m/%Y')
+            elif isinstance(m.data_nascimento, str):
+                try:
+                    parsed_date = datetime.strptime(m.data_nascimento, '%Y-%m-%d').date()
+                    data_nasc_str = parsed_date.strftime('%d/%m/%Y')
+                except ValueError:
+                    data_nasc_str = m.data_nascimento 
+            else:
+                data_nasc_str = str(m.data_nascimento) 
+
+            texto += f"ID: {m.get_id} | Nome: {m.nome} | Nacionalidade: {m.nacionalidade} | Nasc.: {data_nasc_str}\n"
         self.mostrar_mensagem("Membros Cadastrados", texto)

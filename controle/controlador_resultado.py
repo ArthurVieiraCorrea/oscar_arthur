@@ -3,6 +3,7 @@ from entidade.voto import Voto
 from entidade.categoria import Categoria
 from limite.tela_resultado import TelaResultado
 import PySimpleGUI as sg
+from DAOs.voto_dao import VotoDAO
 
 class ControladorResultado:
     def __init__(self, controlador_sistema, controlador_voto):

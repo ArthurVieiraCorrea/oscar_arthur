@@ -1,30 +1,29 @@
 from entidade.categoria import Categoria
 from limite.tela_categoria import TelaCategoria
 import PySimpleGUI as sg
+from DAOs.categoria_dao import CategoriaDAO
 
 class ControladorCategoria:
     def __init__(self, controlador_sistema):
         self.__controlador_sistema = controlador_sistema
         self.__tela_categoria = TelaCategoria()
-        self.__categorias = []
+        self.__categoria_dao = CategoriaDAO()
         self.__inicializar_categorias_fixas()
 
     @property
     def categorias(self):
-        return self.__categorias
+        return list(self.__categoria_dao.get_all())
 
     def pegar_categoria_por_nome(self, nome_categoria: str):
-        for categoria in self.__categorias:
-            if categoria.nome_categoria.lower() == nome_categoria.lower():
-                return categoria
-        return None
+        return self.__categoria_dao.get(nome_categoria)
 
     def __inicializar_categorias_fixas(self):
         nomes_fixos = ["Melhor Ator", "Melhor Diretor", "Melhor Filme"]
         for nome in nomes_fixos:
-            if not self.pegar_categoria_por_nome(nome):
-                self.__categorias.append(Categoria(nome))
+            if not self.__categoria_dao.get(nome):
+                self.__categoria_dao.add(Categoria(nome))
         print("Categorias fixas inicializadas: Melhor Ator, Melhor Diretor, Melhor Filme.")
+
 
     def incluir_categoria(self, nome: str):
         nomes_fixos_lower = ["melhor ator", "melhor diretor", "melhor filme"]
@@ -33,12 +32,12 @@ class ControladorCategoria:
             self.__tela_categoria.show_error(f"A categoria '{nome}' é fixa e não pode ser adicionada.")
             return
 
-        if self.pegar_categoria_por_nome(nome):
+        if self.__categoria_dao.get(nome):
             self.__tela_categoria.show_error(f"A categoria '{nome}' já existe!")
             return
 
         nova_categoria = Categoria(nome)
-        self.__categorias.append(nova_categoria)
+        self.__categoria_dao.add(nova_categoria)
         self.__tela_categoria.show_message("Sucesso", f"Categoria '{nome}' adicionada com sucesso!")
         self.listar_categorias(update_ui=True)
 
@@ -49,9 +48,9 @@ class ControladorCategoria:
             self.__tela_categoria.show_error(f"A categoria '{nome}' é fixa e não pode ser removida.")
             return
 
-        categoria = self.pegar_categoria_por_nome(nome)
+        categoria = self.__categoria_dao.get(nome)
         if categoria:
-            self.__categorias.remove(categoria)
+            self.__categoria_dao.remove(nome)
             self.__tela_categoria.show_message("Sucesso", f"Categoria '{nome}' removida com sucesso!")
             self.listar_categorias(update_ui=True)
         else:
@@ -94,7 +93,7 @@ class ControladorCategoria:
 
     def get_categories_for_display(self):
         categorias_para_exibir = []
-        for categoria in self.__categorias:
+        for categoria in self.__categoria_dao.get_all():
             nome_categoria_lower = categoria.nome_categoria.lower()
             participantes = []
 
@@ -114,9 +113,20 @@ class ControladorCategoria:
                 except AttributeError:
                     participantes = ["(Erro ao carregar dados de Diretor)"]
 
+            elif nome_categoria_lower == "melhor filme": # Adicionando lógica para Melhor Filme
+                 try:
+                    if hasattr(self.__controlador_sistema, 'controlador_filme') and \
+                       hasattr(self.__controlador_sistema.controlador_filme, 'lista_filmes'):
+                        participantes = [f.nome for f in self.__controlador_sistema.controlador_filme.lista_filmes]
+                 except AttributeError:
+                    participantes = ["(Erro ao carregar dados de Filme)"]
             else:
-                if hasattr(categoria, 'participantes'):
-                    participantes = [p.nome for p in categoria.participantes] if categoria.participantes else []
+                if hasattr(categoria, 'participantes') and categoria.participantes:
+                    # Assumindo que participantes são objetos com atributo 'nome'
+                    participantes = [p.nome for p in categoria.participantes if hasattr(p, 'nome')]
+                else:
+                    participantes = []
+
 
             categorias_para_exibir.append({
                 "nome": categoria.nome_categoria,

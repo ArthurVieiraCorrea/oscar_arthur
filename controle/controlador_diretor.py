@@ -1,62 +1,68 @@
 from entidade.diretor import Diretor
 from limite.tela_diretor import TelaDiretor
 import PySimpleGUI as sg
+from DAOs.diretor_dao import DiretorDAO
 
 class ControladorDiretor:
     def __init__(self, tela_diretor):
-        self.__lista_diretores = []
+        self.__diretor_dao = DiretorDAO()
         self.__tela_diretor = tela_diretor
 
     @property
     def lista_diretores(self):
-        return list(self.__lista_diretores)
+        return list(self.__diretor_dao.get_all())
 
     def criar_diretor(self, nome: str, nacionalidade: str):
-        if any(diretor.nome.lower() == nome.lower() for diretor in self.__lista_diretores):
+        if self.__diretor_dao.get(nome):
             self.__tela_diretor.show_message("Erro", f"Já existe um diretor com o nome '{nome}'.")
             return
         novo_diretor = Diretor(nome, nacionalidade)
-        self.__lista_diretores.append(novo_diretor)
+        self.__diretor_dao.add(novo_diretor)
         self.__tela_diretor.show_message("Sucesso", f"Diretor '{nome}' criado com sucesso.")
 
     def excluir_diretor(self, nome: str):
-        diretor_para_excluir = None
-        for diretor in self.__lista_diretores:
-            if diretor.nome.lower() == nome.lower():
-                diretor_para_excluir = diretor
-                break
+        diretor_para_excluir = self.__diretor_dao.get(nome)
 
         if diretor_para_excluir:
-            self.__lista_diretores.remove(diretor_para_excluir)
+            self.__diretor_dao.remove(nome)
             self.__tela_diretor.show_message("Sucesso", f"Diretor '{nome}' removido com sucesso.")
         else:
             self.__tela_diretor.show_message("Erro", f"Diretor '{nome}' não encontrado.")
 
     def editar(self, nome: str, novo_nome: str, nova_nacionalidade: str):
-        for diretor in self.__lista_diretores:
-            if diretor.nome.lower() == nome.lower():
+        diretor = self.__diretor_dao.get(nome)
+        if diretor:
+            if novo_nome and novo_nome.lower() != nome.lower() and self.__diretor_dao.get(novo_nome):
+                self.__tela_diretor.show_message("Erro", f"Já existe um diretor com o novo nome '{novo_nome}'. Edição cancelada.")
+                return
+
+            if novo_nome and novo_nome.lower() != nome.lower():
+                self.__diretor_dao.remove(nome)
+                diretor.nome = novo_nome
+                self.__diretor_dao.add(diretor)
+            else:
                 if novo_nome:
                     diretor.nome = novo_nome
-                if nova_nacionalidade:
-                    diretor.nacionalidade = nova_nacionalidade
-                self.__tela_diretor.show_message("Sucesso", f"Dados do diretor '{nome}' atualizados com sucesso.")
-                return
+                
+            if nova_nacionalidade:
+                diretor.nacionalidade = nova_nacionalidade
+            
+            self.__diretor_dao.update(diretor.nome, diretor)
+            self.__tela_diretor.show_message("Sucesso", f"Dados do diretor '{nome}' atualizados com sucesso.")
+            return
         self.__tela_diretor.show_message("Erro", f"Diretor '{nome}' não encontrado.")
 
     def get_dados(self, nome: str):
-        for diretor in self.__lista_diretores:
-            if diretor.nome.lower() == nome.lower():
-                return diretor.mostrar_dados()
+        diretor = self.__diretor_dao.get(nome)
+        if diretor:
+            return diretor.mostrar_dados()
         return f"Erro: Diretor '{nome}' não encontrado."
 
     def diretor_existe(self, nome_diretor: str) -> bool:
-        return any(diretor.nome.lower() == nome_diretor.lower() for diretor in self.__lista_diretores)
+        return self.__diretor_dao.get(nome_diretor) is not None
 
     def encontrar_diretor_por_nome(self, nome: str):
-        for diretor in self.__lista_diretores:
-            if diretor.nome.lower() == nome.lower():
-                return diretor
-        return None
+        return self.__diretor_dao.get(nome)
 
     def abre_tela(self):
         while True:
@@ -75,14 +81,20 @@ class ControladorDiretor:
                     if not nome:
                         self.__tela_diretor.show_message("Erro", "Digite o nome do diretor para editar.")
                         continue
-                    novo_nome = sg.popup_get_text("Novo nome (deixe vazio para manter):")
-                    nova_nacionalidade = sg.popup_get_text("Nova nacionalidade (deixe vazio para manter):")
+                    
+                    diretor_existente = self.__diretor_dao.get(nome)
+                    if not diretor_existente:
+                        self.__tela_diretor.show_message("Erro", f"Diretor '{nome}' não encontrado para edição.")
+                        continue
+
+                    novo_nome = sg.popup_get_text("Novo nome (deixe vazio para manter):", default_text=diretor_existente.nome)
+                    nova_nacionalidade = sg.popup_get_text("Nova nacionalidade (deixe vazio para manter):", default_text=diretor_existente.nacionalidade)
                     self.editar(nome, novo_nome, nova_nacionalidade)
                 case 'Listar':
-                    if not self.__lista_diretores:
+                    if not self.__diretor_dao.get_all():
                         self.__tela_diretor.show_message("Lista de Diretores", "Nenhum diretor cadastrado.")
                     else:
-                        dados = '\n'.join([d.mostrar_dados() for d in self.__lista_diretores])
+                        dados = '\n'.join([d.mostrar_dados() for d in self.__diretor_dao.get_all()])
                         self.__tela_diretor.show_message("Diretores", dados)
                 case 'Excluir':
                     nome = valores.get('nome', '').strip()

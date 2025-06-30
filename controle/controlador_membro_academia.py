@@ -2,18 +2,16 @@ from entidade.membro_academia import MembroAcademia
 from limite.tela_membro_academia import TelaMembroAcademia
 from datetime import datetime
 import PySimpleGUI as sg
+from DAOs.membro_academia_dao import MembroAcademiaDAO
 
 class ControladorMembroAcademia:
     def __init__(self, controlador_sistema):
         self.__controlador_sistema = controlador_sistema
         self.__tela_membro = TelaMembroAcademia()
-        self.__lista_membros = []
+        self.__membro_dao = MembroAcademiaDAO()
 
     def encontrar_membro_por_id(self, id: str):
-        for membro in self.__lista_membros:
-            if membro.get_id == id:
-                return membro
-        return None
+        return self.__membro_dao.get(id)
 
     def incluir_membro(self, valores):
         try:
@@ -26,7 +24,7 @@ class ControladorMembroAcademia:
             self.__tela_membro.mostrar_erro("Todos os campos devem ser preenchidos!")
             return
 
-        if self.encontrar_membro_por_id(valores['id']):
+        if self.__membro_dao.get(valores['id']):
             self.__tela_membro.mostrar_erro("Já existe um membro com este ID!")
             return
 
@@ -36,38 +34,48 @@ class ControladorMembroAcademia:
             nacionalidade=valores['nacionalidade'],
             data_nascimento=data_nascimento
         )
-        self.__lista_membros.append(novo_membro)
+        self.__membro_dao.add(novo_membro)
         self.__tela_membro.mostrar_mensagem("Sucesso", "Membro cadastrado com sucesso!")
 
-    def editar_membro(self, valores):
-        id_membro = self.__tela_membro.selecionar_membro_por_id()
-        membro = self.encontrar_membro_por_id(id_membro)
+    def editar_membro(self, values):
+        id_membro_para_editar = self.__tela_membro.selecionar_membro_por_id()
+        membro = self.__membro_dao.get(id_membro_para_editar)
         if not membro:
             self.__tela_membro.mostrar_erro("Membro não encontrado!")
             return
 
-        try:
-            data_nascimento = datetime.strptime(valores['data_nascimento'], "%d/%m/%Y").date()
-        except ValueError:
-            self.__tela_membro.mostrar_erro("Data inválida! Use o formato dd/mm/aaaa.")
-            return
+        novo_nome = sg.popup_get_text(f"Novo nome para '{membro.nome}' (deixe vazio para manter):", default_text=membro.nome)
+        nova_nacionalidade = sg.popup_get_text(f"Nova nacionalidade para '{membro.nacionalidade}' (deixe vazio para manter):", default_text=membro.nacionalidade)
+        nova_data_nascimento_str = sg.popup_get_text(f"Nova Data de Nascimento (dd/mm/aaaa) para '{membro.data_nascimento.strftime('%d/%m/%Y')}' (deixe vazio para manter):", default_text=membro.data_nascimento.strftime('%d/%m/%Y'))
 
-        membro.nome = valores['nome']
-        membro.nacionalidade = valores['nacionalidade']
-        membro.data_nascimento = data_nascimento
+        if novo_nome:
+            membro.nome = novo_nome
+        if nova_nacionalidade:
+            membro.nacionalidade = nova_nacionalidade
+
+        if nova_data_nascimento_str:
+            try:
+                nova_data_nascimento = datetime.strptime(nova_data_nascimento_str, "%d/%m/%Y").date()
+                membro.data_nascimento = nova_data_nascimento
+            except ValueError:
+                self.__tela_membro.mostrar_erro("Data inválida! Data de nascimento não atualizada.")
+                return
+
+        self.__membro_dao.update(membro)
         self.__tela_membro.mostrar_mensagem("Sucesso", "Membro atualizado com sucesso!")
+
 
     def excluir_membro(self):
         id_membro = self.__tela_membro.selecionar_membro_por_id()
-        membro = self.encontrar_membro_por_id(id_membro)
+        membro = self.__membro_dao.get(id_membro)
         if membro:
-            self.__lista_membros.remove(membro)
+            self.__membro_dao.remove(id_membro)
             self.__tela_membro.mostrar_mensagem("Sucesso", "Membro removido com sucesso!")
         else:
             self.__tela_membro.mostrar_erro("Membro não encontrado!")
 
     def listar_membros(self):
-        self.__tela_membro.mostrar_membros(self.__lista_membros)
+        self.__tela_membro.mostrar_membros(self.__membro_dao.get_all())
 
     def abre_tela(self):
         while True:
